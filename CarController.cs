@@ -66,6 +66,10 @@ public class CarController : MonoBehaviour
             }
             gasSlider.value = gasRemaining;
         }
+        else if(other.CompareTag("Obstacle"))
+        {
+            Destroy(other.gameObject);
+        }
     }
 }
 
