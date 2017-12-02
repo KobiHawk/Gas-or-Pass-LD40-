@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class SimpleCarController : MonoBehaviour
+public class CarController : MonoBehaviour
 {
     //Local Variables
     public int gasRemaining;
