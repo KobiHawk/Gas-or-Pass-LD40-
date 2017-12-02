@@ -5,9 +5,11 @@ public class RoadController : MonoBehaviour {
 
     public GameObject obstacle;
     public GameObject gasPickup;
+    public GameObject emergencyGasPickup;
 
     public int obstacleFrequency = 20;
     public int gasFrequency = 50;
+    public int emergencyGasFrequency = 10;
 
 	void Start ()
     {
@@ -34,7 +36,6 @@ public class RoadController : MonoBehaviour {
             newPosition = new Vector3((Random.value * transform.lossyScale.x) - transform.lossyScale.x / 2, yPosition, ((Random.value * transform.lossyScale.z) - transform.lossyScale.z / 2) + transform.position.z);
             GameObject newObject = Instantiate(obstacle, newPosition, obstacle.transform.rotation) as GameObject;
             newObject.transform.parent = transform;
-            //newObject.transform.localScale = new Vector3(1, 1, 1);
         }
 
         yPosition = gasPickup.transform.position.y;
@@ -43,7 +44,13 @@ public class RoadController : MonoBehaviour {
             newPosition = new Vector3((Random.value * transform.lossyScale.x) - transform.lossyScale.x / 2, yPosition, ((Random.value * transform.lossyScale.z) - transform.lossyScale.z / 2) + transform.position.z);
             GameObject newObject = Instantiate(gasPickup, newPosition, gasPickup.transform.rotation) as GameObject;
             newObject.transform.parent = transform;
-            //newObject.transform.localScale = new Vector3(1, 1, 1);
+        }
+        yPosition = emergencyGasPickup.transform.position.y;
+        for (int i = 0; i < emergencyGasFrequency; i++)
+        {
+            newPosition = new Vector3((Random.value * transform.lossyScale.x) - transform.lossyScale.x / 2, yPosition, ((Random.value * transform.lossyScale.z) - transform.lossyScale.z / 2) + transform.position.z);
+            GameObject newObject = Instantiate(emergencyGasPickup, newPosition, emergencyGasPickup.transform.rotation) as GameObject;
+            newObject.transform.parent = transform;
         }
     }
 }

@@ -11,7 +11,6 @@ public class CarController : MonoBehaviour {
     public int gasCap = 2000;
     public int gasPickupAward = 500;
     public int hitObstaclePenalty = 100;
-    public int gasBoostCost = 50;
     public float speed = 10;
     public const float MAX_SPEED = 100; //the absolute maximum speed
     public float maxSpeed = 60; // the current maximum speed, after accounting for drag from fuel carry
@@ -20,10 +19,12 @@ public class CarController : MonoBehaviour {
     public float rollImpact = 1.5f;
     public float drag = 0.1f;
     public int nextRoadToBuild = 3;
+    public bool hasGas = false;
 
     public float velocity; // used to track rb.velocity.z
 
     public Slider gasSlider;
+    public EmergencyGasSpriteChanger emergencyGas;
     public GameObject road;
 
     void Start () {
@@ -57,15 +58,16 @@ public class CarController : MonoBehaviour {
 
     private void boost()
     {
-        if (gasRemaining >= 100)
+        if(hasGas)
         {
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            Vector3 direction = new Vector3(moveHorizontal, 0.0f, 0.0f);
-            rb.AddForce(direction * boostPower);
+            gasRemaining += gasPickupAward;
+            if(gasRemaining > gasCap)
+            {
+                gasRemaining = gasCap;
+            }
 
-            transform.Rotate(0.0f, 0.0f, -rollImpact * Mathf.Sign(moveHorizontal));
-            gasRemaining -= 100;
-            gasSlider.value = gasRemaining;
+            hasGas = false;
+            emergencyGas.updateImage("red");
         }
     }
 
@@ -74,12 +76,13 @@ public class CarController : MonoBehaviour {
         float moveHorizontal = Input.GetAxis("Horizontal") * 5;
         float moveVertical = Input.GetAxis("Vertical");
 
+        //handle vertical (forward) movement
         if(moveVertical < 0.0f)
         {
             moveVertical = 0.0f; // can't reverse
         }
 
-        if (gasRemaining == 0 || moveVertical == 0.0f || (rb.velocity.z >= maxSpeed))
+        if (gasRemaining == 0 || moveVertical == 0.0f || (rb.velocity.z >= maxSpeed)) // we either aren't accelerating, or can't
         {
             moveVertical = 0.0f;
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, rb.velocity.z * (1 - drag));
@@ -88,14 +91,17 @@ public class CarController : MonoBehaviour {
                 rb.velocity = Vector3.zero;
             }
         }
-        else
+        else // we are accelerating, let's go
         {
-            Vector3 direction = new Vector3(moveHorizontal, 0.0f, moveVertical);
-
+            Vector3 direction = new Vector3(0.0f, 0.0f, moveVertical);
             rb.AddForce(direction * speed);
+
             gasRemaining--;
             gasSlider.value = gasRemaining;
         }
+
+        //handle horizontal movement
+        rb.velocity = new Vector3(moveHorizontal * 10, rb.velocity.y, rb.velocity.z);
 
         if (moveHorizontal == 0.0f) //player not turning, return car to normal
         {
@@ -109,12 +115,14 @@ public class CarController : MonoBehaviour {
             }
             rb.velocity = new Vector3(rb.velocity.x * 0.5f, rb.velocity.y, rb.velocity.z); // return trajectory back to normal too
         }
-        else if(moveHorizontal > 0.0f)
+        else if((moveHorizontal > 0.0f) && ((transform.rotation.eulerAngles.z > (360 - maxRotation)) || (transform.rotation.eulerAngles.z < 180)))
         {
+            Debug.Log(transform.rotation.eulerAngles.z);
             transform.Rotate(0.0f, 0.0f, -0.2f);
         }
-        else if(moveHorizontal < 0.0f)
+        else if((moveHorizontal < 0.0f) && ((transform.rotation.eulerAngles.z < maxRotation) || (transform.rotation.eulerAngles.z > 180)))
         {
+            Debug.Log(transform.rotation.eulerAngles.z);
             transform.Rotate(0.0f, 0.0f, 0.2f);
         }
         velocity = rb.velocity.z; // used to track velocity
@@ -131,6 +139,15 @@ public class CarController : MonoBehaviour {
                 gasRemaining = gasCap;
             }
             gasSlider.value = gasRemaining;
+        }
+        else if(other.CompareTag("EmergencyGas"))
+        {
+            Destroy(other.gameObject);
+            if(!hasGas)
+            {
+                hasGas = true;
+                emergencyGas.updateImage("green");
+            }
         }
         else if(other.CompareTag("Obstacle"))
         {
