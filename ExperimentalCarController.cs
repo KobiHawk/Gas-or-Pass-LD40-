@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class CarController : MonoBehaviour {
+public class ExperimentalCarController : MonoBehaviour {
 
     Rigidbody rb;
 
@@ -19,7 +19,6 @@ public class CarController : MonoBehaviour {
     public float boostPower = 1500;
     public float rollImpact = 1.5f;
     public float drag = 0.1f;
-    public int nextRoadToBuild = 3;
 
     public float velocity; // used to track rb.velocity.z
 
@@ -142,16 +141,6 @@ public class CarController : MonoBehaviour {
             }
             gasSlider.value = gasRemaining;
             rb.velocity = new Vector3(rb.velocity.x / 2, 0.0f, rb.velocity.z / 2);
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Road"))
-        {
-            Destroy(other.gameObject); //we've passed the road, so we can free the space
-            GameObject newRoad = Instantiate(road) as GameObject;
-            newRoad.transform.position = new Vector3(newRoad.transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
-            nextRoadToBuild++;
         }
     }
 
