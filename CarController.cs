@@ -1,6 +1,14 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
+
+/*
+ * CarController
+ * The majority of the game's mechanics are handled by this script.
+ * This controls the player, including managing their fuel, speed, as well as updating various UI elements based on the player's status.
+ * Game overs are also handled here.
+ */
 
 public class CarController : MonoBehaviour {
 
@@ -24,6 +32,7 @@ public class CarController : MonoBehaviour {
     public float velocity; // used to track rb.velocity.z
 
     public Slider gasSlider;
+    public Slider speedSlider;
     public EmergencyGasSpriteChanger emergencyGas;
     public GameObject road;
 
@@ -33,16 +42,25 @@ public class CarController : MonoBehaviour {
         gasSlider.minValue = 0;
         gasSlider.maxValue = gasCap;
         gasSlider.value = gasRemaining;
+
+        speedSlider.minValue = 0;
+        speedSlider.maxValue = MAX_SPEED;
+        speedSlider.value = rb.velocity.z;
     }
 
     private void Update()
     {
         calculateMaxSpeed();
+        if(gasRemaining == 0 && rb.velocity.z < 0.1f && !hasGas)
+        {
+            gameOver();
+        }
     }
 
     void FixedUpdate () {
 
         move();
+        speedSlider.value = rb.velocity.z;
 
         if(Input.GetButtonUp("space"))
         {
@@ -167,7 +185,8 @@ public class CarController : MonoBehaviour {
         {
             Destroy(other.gameObject); //we've passed the road, so we can free the space
             GameObject newRoad = Instantiate(road) as GameObject;
-            newRoad.transform.position = new Vector3(newRoad.transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
+            //make the road at the player's X coordinate, in the distance at the correct Z coordinate, then update the new Z coordinate (nextRoadToBuild)
+            newRoad.transform.position = new Vector3(transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
             nextRoadToBuild++;
         }
     }
@@ -178,5 +197,10 @@ public class CarController : MonoBehaviour {
         {
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, maxSpeed);
         }
+    }
+
+    private void gameOver()
+    {
+        SceneManager.LoadScene(0);
     }
 }
