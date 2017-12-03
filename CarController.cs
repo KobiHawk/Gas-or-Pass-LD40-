@@ -47,6 +47,7 @@ public class CarController : MonoBehaviour {
     }
 
     void Start () {
+        Time.timeScale = 1.0f;
         rb = GetComponent<Rigidbody>();
 
         gasSlider.minValue = 0;

@@ -29,7 +29,7 @@ public class GameOverManager : MonoBehaviour {
     {
         Time.timeScale = 1.0f;
         gameObject.SetActive(false);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         
     }
 

@@ -4,7 +4,7 @@ using System.Collections;
 
 public class DistanceBarController : MonoBehaviour {
     public CarController car;
-    public Transform destinationPointer;
+    public GameObject destinationPointer;
 
     public float maxDistance = 10000; // distance at which the pointer stops updating
     public float minDistance = 0; // distance at which the pointer meets the target
@@ -21,6 +21,7 @@ public class DistanceBarController : MonoBehaviour {
     {
         text = GetComponentInChildren<Text>();
         screenPointerDistance = destinationPointer.transform.position.y - transform.position.y;
+        destinationPointer.GetComponentInChildren<Text>().color = car.GetComponent<Renderer>().material.color;
     }
 
     private void Update()
