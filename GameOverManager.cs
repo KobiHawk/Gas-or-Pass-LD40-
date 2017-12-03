@@ -22,7 +22,7 @@ public class GameOverManager : MonoBehaviour {
         this.gameObject.SetActive(true);
         button.onClick.AddListener(newGame);
 
-        text.text = "Game over. You reached Wave: " + player.nextRoadToBuild + ".";
+        text.text = "Game over. You reached Wave: " + (player.nextRoadToBuild - 2) + "."; // game starts by needing third road built, but that's only wave 1
     }
     public void newGame()
     {

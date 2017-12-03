@@ -36,6 +36,7 @@ public class DistanceBarController : MonoBehaviour {
         if (distanceDelta <= minDistance)
         {
             text.text = distanceDelta.ToString();
+            car.gameOver();
             //gameover
         }
         else if(distanceDelta >= maxDistance)

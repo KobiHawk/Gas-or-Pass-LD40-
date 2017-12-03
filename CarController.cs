@@ -39,6 +39,7 @@ public class CarController : MonoBehaviour {
     public EmergencyGasSpriteChanger emergencyGas;
     public GameObject road;
     public GameOverManager gameOverManager;
+    public PauseScreenManager pauseMenu;
 
     void Start () {
         rb = GetComponent<Rigidbody>();
@@ -54,18 +55,43 @@ public class CarController : MonoBehaviour {
 
     private void Update()
     {
-        calculateMaxSpeed();
-        if(gasRemaining <= 0 && rb.velocity.z < 0.5f && !hasGas)
+        //first need to make sure game doesn't do anything when paused
+        if(Time.timeScale == 0.0f)
         {
-            gameOver();
+            if(Input.GetButtonDown("Cancel"))
+            {
+                Time.timeScale = 1.0f;
+                pauseMenu.gameObject.SetActive(false);
+            }
         }
-        if (Input.GetButtonUp("space"))
+        else
         {
-            boost();
+            if(Input.GetButtonDown("Cancel"))
+            {
+                Time.timeScale = 0.0f;
+                pauseMenu.gameObject.SetActive(true);
+            }
+            else //we can proceed normally, game is unpaused
+            {
+                //bookkeeping at the start of each frame
+                calculateMaxSpeed();
+                if (gasRemaining <= 0 && rb.velocity.z < 0.5f && !hasGas)
+                {
+                    gameOver();
+                }
+
+                //handle input
+                if (Input.GetButtonDown("space"))
+                {
+                    boost();
+                }
+                move();
+
+                //update UI
+                speedSlider.value = rb.velocity.z;
+                distanceTraveled.text = Mathf.RoundToInt(transform.position.z).ToString();
+            }
         }
-        move();
-        speedSlider.value = rb.velocity.z;
-        distanceTraveled.text = Mathf.RoundToInt(transform.position.z).ToString();
     }
 
     private void calculateMaxSpeed()
@@ -218,7 +244,7 @@ public class CarController : MonoBehaviour {
         }
     }
 
-    private void gameOver()
+    public void gameOver()
     {
         gameOverManager.gameOver();
     }
