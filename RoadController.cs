@@ -44,8 +44,9 @@ public class RoadController : MonoBehaviour {
             newObject.transform.parent = transform;
         }
 
+        Debug.Log("Next chunk has " + (gasFrequency + (player.nextRoadToBuild * 5)) + " gas.");
         yPosition = gasPickup.transform.position.y;
-        for (int i = 0; i < gasFrequency; i++)
+        for (int i = 0; i < gasFrequency + (player.nextRoadToBuild * 5); i++)
         {
             newPosition = new Vector3((Random.value * transform.lossyScale.x) - transform.lossyScale.x / 2 + playerX,
                                        yPosition,

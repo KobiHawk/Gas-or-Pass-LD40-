@@ -32,8 +32,10 @@ public class CarController : MonoBehaviour {
 
     public Slider gasSlider;
     public Slider speedSlider;
+    public Text distanceTraveled;
     public EmergencyGasSpriteChanger emergencyGas;
     public GameObject road;
+    public GameOverManager gameOverManager;
 
     void Start () {
         rb = GetComponent<Rigidbody>();
@@ -50,7 +52,7 @@ public class CarController : MonoBehaviour {
     private void Update()
     {
         calculateMaxSpeed();
-        if(gasRemaining <= 0 && rb.velocity.z < 0.1f && !hasGas)
+        if(gasRemaining <= 0 && rb.velocity.z < 0.5f && !hasGas)
         {
             gameOver();
         }
@@ -60,6 +62,7 @@ public class CarController : MonoBehaviour {
         }
         move();
         speedSlider.value = rb.velocity.z;
+        distanceTraveled.text = Mathf.RoundToInt(transform.position.z).ToString();
     }
 
     private void calculateMaxSpeed()
@@ -207,6 +210,6 @@ public class CarController : MonoBehaviour {
 
     private void gameOver()
     {
-        SceneManager.LoadScene(0);
+        gameOverManager.gameOver();
     }
 }
