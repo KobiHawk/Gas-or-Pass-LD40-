@@ -25,10 +25,13 @@ public class CarController : MonoBehaviour {
     public float maxRotation = 15;
     public float rollImpact = 1.5f;
     public float drag = 0.1f;
-    public int nextRoadToBuild = 3;
+    public int nextRoadToBuild = 2;
     public bool hasGas = false;
 
     public float velocity; // used to track rb.velocity.z
+
+    private int timesChangedRoadColor = 1;
+    private Color currRoadColor;
 
     public Slider gasSlider;
     public Slider speedSlider;
@@ -197,6 +200,13 @@ public class CarController : MonoBehaviour {
             //make the road at the player's X coordinate, in the distance at the correct Z coordinate, then update the new Z coordinate (nextRoadToBuild)
             newRoad.transform.position = new Vector3(transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
             nextRoadToBuild++;
+
+            if (nextRoadToBuild % (10 * timesChangedRoadColor) >= 1)
+            {
+                currRoadColor = new Color(Random.value, Random.value, Random.value);
+                timesChangedRoadColor++;
+            }
+            newRoad.GetComponent<MeshRenderer>().material.color = currRoadColor;
         }
     }
 

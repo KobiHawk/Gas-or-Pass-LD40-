@@ -35,7 +35,7 @@ public class RoadController : MonoBehaviour {
          * z: Same as x, but we also shift the object up by the z axis, since we'll be making these roads back to back, we need to adjust from origin
          */
 
-        for (int i = 0; i < obstacleFrequency; i++)
+        for (int i = 0; i < obstacleFrequency + (player.nextRoadToBuild * 3); i++)
         {
             newPosition = new Vector3((Random.value * transform.lossyScale.x) - transform.lossyScale.x / 2 + playerX,
                                        yPosition,
