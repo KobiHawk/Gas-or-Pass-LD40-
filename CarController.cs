@@ -15,15 +15,14 @@ public class CarController : MonoBehaviour {
     Rigidbody rb;
 
     //Local Variables
-    public int gasRemaining = 1000;
-    public int gasCap = 2000;
-    public int gasPickupAward = 500;
-    public int hitObstaclePenalty = 100;
+    public int gasRemaining = 2000;
+    public int gasCap = 4000;
+    public int gasPickupAward = 1000;
+    public int hitObstaclePenalty = 350;
     public float speed = 10;
     public const float MAX_SPEED = 100; //the absolute maximum speed
     public float maxSpeed = 60; // the current maximum speed, after accounting for drag from fuel carry
     public float maxRotation = 15;
-    public float boostPower = 1500;
     public float rollImpact = 1.5f;
     public float drag = 0.1f;
     public int nextRoadToBuild = 3;
@@ -51,22 +50,17 @@ public class CarController : MonoBehaviour {
     private void Update()
     {
         calculateMaxSpeed();
-        if(gasRemaining == 0 && rb.velocity.z < 0.1f && !hasGas)
+        if(gasRemaining <= 0 && rb.velocity.z < 0.1f && !hasGas)
         {
             gameOver();
         }
-    }
-
-    void FixedUpdate () {
-
-        move();
-        speedSlider.value = rb.velocity.z;
-
-        if(Input.GetButtonUp("space"))
+        if (Input.GetButtonUp("space"))
         {
             boost();
         }
-	}
+        move();
+        speedSlider.value = rb.velocity.z;
+    }
 
     private void calculateMaxSpeed()
     {
@@ -100,7 +94,7 @@ public class CarController : MonoBehaviour {
             moveVertical = 0.0f; // can't reverse
         }
 
-        if (gasRemaining == 0 || moveVertical == 0.0f || (rb.velocity.z >= maxSpeed)) // we either aren't accelerating, or can't
+        if (gasRemaining <= 0 || moveVertical == 0.0f || (rb.velocity.z >= maxSpeed)) // we either aren't accelerating, or can't
         {
             moveVertical = 0.0f;
             rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, rb.velocity.z * (1 - drag));
@@ -114,13 +108,27 @@ public class CarController : MonoBehaviour {
             Vector3 direction = new Vector3(0.0f, 0.0f, moveVertical);
             rb.AddForce(direction * speed);
 
-            gasRemaining--;
+            gasRemaining -= 3;
             gasSlider.value = gasRemaining;
         }
 
         //handle horizontal movement
-        rb.velocity = new Vector3(moveHorizontal * 10, rb.velocity.y, rb.velocity.z);
+        if (moveHorizontal != 0.0f)
+        {
+            int turnPower = 10;
+            if(gasRemaining <= 0)
+            {
+                turnPower = 1; // can still turn when out of gas, but very limited
+            }
 
+            //to improve control, velocity adjusted directly for horizontal movement. Less realistic but more fun
+            rb.velocity = new Vector3(moveHorizontal * turnPower, rb.velocity.y, rb.velocity.z);
+            gasRemaining--;
+            gasSlider.value = gasRemaining;
+        }
+
+
+        //handle rotation
         if (moveHorizontal == 0.0f) //player not turning, return car to normal
         {
             if(transform.rotation.z > 0.0f)
@@ -135,12 +143,10 @@ public class CarController : MonoBehaviour {
         }
         else if((moveHorizontal > 0.0f) && ((transform.rotation.eulerAngles.z > (360 - maxRotation)) || (transform.rotation.eulerAngles.z < 180)))
         {
-            Debug.Log(transform.rotation.eulerAngles.z);
             transform.Rotate(0.0f, 0.0f, -0.2f);
         }
         else if((moveHorizontal < 0.0f) && ((transform.rotation.eulerAngles.z < maxRotation) || (transform.rotation.eulerAngles.z > 180)))
         {
-            Debug.Log(transform.rotation.eulerAngles.z);
             transform.Rotate(0.0f, 0.0f, 0.2f);
         }
         velocity = rb.velocity.z; // used to track velocity
