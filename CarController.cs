@@ -41,6 +41,11 @@ public class CarController : MonoBehaviour {
     public GameOverManager gameOverManager;
     public PauseScreenManager pauseMenu;
 
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+    }
+
     void Start () {
         rb = GetComponent<Rigidbody>();
 
@@ -51,6 +56,7 @@ public class CarController : MonoBehaviour {
         speedSlider.minValue = 0;
         speedSlider.maxValue = MAX_SPEED;
         speedSlider.value = rb.velocity.z;
+        
     }
 
     private void Update()
@@ -222,10 +228,13 @@ public class CarController : MonoBehaviour {
     {
         if (other.CompareTag("Road"))
         {
+
+
             Destroy(other.gameObject); //we've passed the road, so we can free the space
             GameObject newRoad = Instantiate(road) as GameObject;
             //make the road at the player's X coordinate, in the distance at the correct Z coordinate, then update the new Z coordinate (nextRoadToBuild)
-            newRoad.transform.position = new Vector3(transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
+            //we round to the nearest 5 to preserve the road texture matching with the previous ones.
+            newRoad.transform.position = new Vector3(Mathf.Round(transform.position.x / 5.0f) * 5, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
             nextRoadToBuild++;
 
             //if (nextRoadToBuild / (10 * timesChangedRoadColor) >= 1) //commented out as was initially a bug, but updating color every wave has proven nice
@@ -247,6 +256,7 @@ public class CarController : MonoBehaviour {
 
     public void gameOver()
     {
+        gameOverManager.gameObject.SetActive(true);
         gameOverManager.gameOver();
     }
 }

@@ -11,23 +11,26 @@ public class GameOverManager : MonoBehaviour {
     private Button button;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         text = GetComponentInChildren<Text>();
         button = GetComponentInChildren<Button>();
+        Debug.Log(button == null);
         this.gameObject.SetActive(false);
 	}
 
     public void gameOver()
     {
-        this.gameObject.SetActive(true);
+        Time.timeScale = 0.0f;
         button.onClick.AddListener(newGame);
 
         text.text = "Game over. You reached Wave: " + (player.nextRoadToBuild - 2) + "."; // game starts by needing third road built, but that's only wave 1
     }
-    public void newGame()
+    void newGame()
     {
-        this.gameObject.SetActive(false);
+        Time.timeScale = 1.0f;
+        gameObject.SetActive(false);
         SceneManager.LoadScene(0);
+        
     }
 
 }
