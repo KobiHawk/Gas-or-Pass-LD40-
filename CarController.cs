@@ -163,6 +163,10 @@ public class CarController : MonoBehaviour {
             //to improve control, velocity adjusted directly for horizontal movement. Less realistic but more fun
             rb.velocity = new Vector3(moveHorizontal * turnPower, rb.velocity.y, rb.velocity.z);
             gasRemaining--;
+            if(gasRemaining < 0)
+            {
+                gasRemaining = 0;
+            }
             gasSlider.value = gasRemaining;
         }
 
