@@ -69,6 +69,7 @@ public class CarController : MonoBehaviour {
             if(Input.GetButtonDown("Cancel"))
             {
                 Time.timeScale = 0.0f;
+                pauseMenu.updateText();
                 pauseMenu.gameObject.SetActive(true);
             }
             else //we can proceed normally, game is unpaused
@@ -227,11 +228,11 @@ public class CarController : MonoBehaviour {
             newRoad.transform.position = new Vector3(transform.position.x, newRoad.transform.position.y, newRoad.transform.position.z + (nextRoadToBuild * newRoad.transform.localScale.z));
             nextRoadToBuild++;
 
-            if (nextRoadToBuild % (10 * timesChangedRoadColor) >= 1)
-            {
+            //if (nextRoadToBuild / (10 * timesChangedRoadColor) >= 1) //commented out as was initially a bug, but updating color every wave has proven nice
+            //{
                 currRoadColor = new Color(Random.value, Random.value, Random.value);
                 timesChangedRoadColor++;
-            }
+            //}
             newRoad.GetComponent<MeshRenderer>().material.color = currRoadColor;
         }
     }

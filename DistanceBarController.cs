@@ -7,11 +7,15 @@ public class DistanceBarController : MonoBehaviour {
     public Transform destinationPointer;
     private Transform maxDistancePointer;
 
-    public float maxDistance = 1000; // distance at which the pointer stops updating
+    public float maxDistance = 10000; // distance at which the pointer stops updating
     public float minDistance = 0; // distance at which the pointer meets the target
     private float screenPointerDistance; // distance on screen from start to end for pointers
 
+    private bool isVeryFarAhead = false; // if player is over max distance from opponent, this is true
+
     private float distanceTraveled = -300;
+    private int currDifficulty = 1;
+    private float speed = 0.5f;
     private Text text;
 
     private void Start()
@@ -19,14 +23,22 @@ public class DistanceBarController : MonoBehaviour {
         text = GetComponentInChildren<Text>();
         screenPointerDistance = destinationPointer.transform.position.y - transform.position.y;
         maxDistancePointer = transform;
-        Debug.Log("destinationPointer: " + destinationPointer.transform.position.y);
-        Debug.Log("maxDistancePointer: " + maxDistancePointer.transform.position.y);
     }
 
     private void Update()
     {
-        distanceTraveled += 0.5f;
+        distanceTraveled += speed;
         updateDistance();
+
+        if(car.transform.position.z / (currDifficulty * 2500) > 1)
+        {
+            if (isVeryFarAhead)
+            {
+                increaseDifficulty();
+                currDifficulty++;
+                Debug.Log("Difficulty increased to " + speed);
+            }
+        }
     }
 
     private void updateDistance()
@@ -39,9 +51,10 @@ public class DistanceBarController : MonoBehaviour {
             car.gameOver();
             //gameover
         }
-        else if(distanceDelta >= maxDistance)
+        else if(distanceDelta >= (maxDistance / 5))
         {
             text.text = distanceDelta.ToString();
+            isVeryFarAhead = true;
             //maxDistance
         }
         else
@@ -50,7 +63,12 @@ public class DistanceBarController : MonoBehaviour {
             transform.position = new Vector3(transform.position.x,
                                              destinationPointer.transform.position.y - ((distanceDelta / maxDistance) * screenPointerDistance),//(distanceDelta/maxDistance) * screenPointerDistance, 
                                              transform.position.z);
-            //also update position
+            isVeryFarAhead = false;
         }
+    }
+
+    public void increaseDifficulty()
+    {
+        speed += 0.1f;
     }
 }
