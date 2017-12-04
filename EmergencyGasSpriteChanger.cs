@@ -4,24 +4,24 @@ using System.Collections;
 
 public class EmergencyGasSpriteChanger : MonoBehaviour {
 
-    private Button button;
+    private Image image;
     public Sprite red;
     public Sprite green;
 
 	// Use this for initialization
 	void Start () {
-        button = GetComponent<Button>();
+        image = GetComponent<Image>();
 	}
 
     public void updateImage(string newImage)
     {
         if (newImage == "green")
         {
-            button.image.overrideSprite = green;
+           image.overrideSprite = green;
         }
         else if(newImage == "red")
         {
-            button.image.overrideSprite = red;
+            image.overrideSprite = red;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Collections;
  * CarController
  * The majority of the game's mechanics are handled by this script.
  * This controls the player, including managing their fuel, speed, as well as updating various UI elements based on the player's status.
+ * Most other scripts connect here.
  * Game overs are also handled here.
  */
 
@@ -27,11 +28,18 @@ public class CarController : MonoBehaviour {
     public float drag = 0.1f;
     public int nextRoadToBuild = 2;
     public bool hasGas = false;
+    private int boostDuration = 60; // frames
+    private bool isBoosting = false;
+    private int framesAboveTargetSpeed = 0;
+    private float targetSpeed = 75;
+    public int boostCost = 300;
 
     public float velocity; // used to track rb.velocity.z
 
     protected int timesChangedRoadColor = 1;
     protected Color currRoadColor;
+
+    private const int TARGET_FRAME_RATE = 60;
 
     public Slider gasSlider;
     public Slider speedSlider;
@@ -40,10 +48,11 @@ public class CarController : MonoBehaviour {
     public GameObject road;
     public GameOverManager gameOverManager;
     public PauseScreenManager pauseMenu;
+    public BoostGaugeController boostGauge;
 
     protected void Awake()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = TARGET_FRAME_RATE;
     }
 
     void Start () {
@@ -81,6 +90,16 @@ public class CarController : MonoBehaviour {
             }
             else //we can proceed normally, game is unpaused
             {
+                //manage boost gauge, if we're going fast then charge a boost
+                if(rb.velocity.z >= targetSpeed)
+                {
+                    framesAboveTargetSpeed++;
+                    if(framesAboveTargetSpeed / TARGET_FRAME_RATE >= 1) // todo: calculate an average of past few frames instead
+                    {
+                        boostGauge.updateGauge();
+                        framesAboveTargetSpeed -= TARGET_FRAME_RATE;
+                    }
+                }
                 //bookkeeping at the start of each frame
                 calculateMaxSpeed();
                 if (gasRemaining <= 0 && rb.velocity.z < 0.5f && !hasGas)
@@ -91,7 +110,13 @@ public class CarController : MonoBehaviour {
                 //handle input
                 if (Input.GetButtonDown("space"))
                 {
-                    boost();
+                    usePowerup();
+                }
+                if(Input.GetButtonDown("Fire1") && boostGauge.gauge == BoostGaugeController.MAX_GAUGE && gasRemaining >= boostCost)
+                {
+                    gasRemaining -= boostCost;
+                    StartCoroutine(boost());
+                    boostGauge.clearGauge();
                 }
                 move();
 
@@ -108,7 +133,22 @@ public class CarController : MonoBehaviour {
         maxSpeed = MAX_SPEED * (percentageOfMaxSpeed / 100);
     }
 
-    private void boost()
+    private IEnumerator boost()
+    {
+        if(!isBoosting)
+        {
+            isBoosting = true;
+
+            for(int i = 0; i < boostDuration; i++)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, rb.velocity.y, maxSpeed * 2); // double speed for duration
+                yield return null;
+            }
+            isBoosting = false;
+        }
+    }
+
+    private void usePowerup()
     {
         if(hasGas)
         {
