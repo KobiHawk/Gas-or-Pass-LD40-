@@ -30,8 +30,8 @@ public class CarController : MonoBehaviour {
 
     public float velocity; // used to track rb.velocity.z
 
-    private int timesChangedRoadColor = 1;
-    private Color currRoadColor;
+    protected int timesChangedRoadColor = 1;
+    protected Color currRoadColor;
 
     public Slider gasSlider;
     public Slider speedSlider;
@@ -41,7 +41,7 @@ public class CarController : MonoBehaviour {
     public GameOverManager gameOverManager;
     public PauseScreenManager pauseMenu;
 
-    private void Awake()
+    protected void Awake()
     {
         Application.targetFrameRate = 60;
     }
@@ -60,7 +60,7 @@ public class CarController : MonoBehaviour {
         
     }
 
-    private void Update()
+    protected void Update()
     {
         //first need to make sure game doesn't do anything when paused
         if(Time.timeScale == 0.0f)
@@ -102,7 +102,7 @@ public class CarController : MonoBehaviour {
         }
     }
 
-    private void calculateMaxSpeed()
+    protected void calculateMaxSpeed()
     {
         float percentageOfMaxSpeed = (-.75f * (gasRemaining * 100 / gasCap)) + 100;
         maxSpeed = MAX_SPEED * (percentageOfMaxSpeed / 100);
@@ -123,7 +123,7 @@ public class CarController : MonoBehaviour {
         }
     }
 
-    private void move()
+    protected void move()
     {
         float moveHorizontal = Input.GetAxis("Horizontal") * 5;
         float moveVertical = Input.GetAxis("Vertical");
@@ -196,7 +196,7 @@ public class CarController : MonoBehaviour {
         velocity = rb.velocity.z; // used to track velocity
     }
 
-    private void OnTriggerEnter(Collider other)
+    protected void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Gas"))
         {
@@ -229,7 +229,7 @@ public class CarController : MonoBehaviour {
             rb.velocity = new Vector3(rb.velocity.x / 2, 0.0f, rb.velocity.z / 2);
         }
     }
-    private void OnTriggerExit(Collider other)
+    protected void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Road"))
         {
@@ -251,7 +251,7 @@ public class CarController : MonoBehaviour {
         }
     }
 
-    private void capSpeed()
+    protected void capSpeed()
     {
         if(rb.velocity.z > maxSpeed)
         {
