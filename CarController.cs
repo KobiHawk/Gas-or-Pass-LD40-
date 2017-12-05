@@ -32,7 +32,7 @@ public class CarController : MonoBehaviour {
     private bool isBoosting = false;
     private int framesAboveTargetSpeed = 0;
     private float targetSpeed = 75;
-    public int boostCost = 300;
+    private int secondsForBoost = 3;
 
     public float velocity; // used to track rb.velocity.z
 
@@ -48,6 +48,7 @@ public class CarController : MonoBehaviour {
     public GameObject road;
     public GameOverManager gameOverManager;
     public PauseScreenManager pauseMenu;
+    private Toggle alwaysAccelerate;
     public BoostGaugeController boostGauge;
 
     protected void Awake()
@@ -58,6 +59,7 @@ public class CarController : MonoBehaviour {
     void Start () {
         Time.timeScale = 1.0f;
         rb = GetComponent<Rigidbody>();
+        alwaysAccelerate = pauseMenu.GetComponentsInChildren<Toggle>()[1];
 
         gasSlider.minValue = 0;
         gasSlider.maxValue = gasCap;
@@ -94,10 +96,10 @@ public class CarController : MonoBehaviour {
                 if(rb.velocity.z >= targetSpeed)
                 {
                     framesAboveTargetSpeed++;
-                    if(framesAboveTargetSpeed / TARGET_FRAME_RATE >= 1) // todo: calculate an average of past few frames instead
+                    if(framesAboveTargetSpeed / TARGET_FRAME_RATE >= secondsForBoost) // todo: calculate an average of past few frames instead
                     {
                         boostGauge.updateGauge();
-                        framesAboveTargetSpeed -= TARGET_FRAME_RATE;
+                        framesAboveTargetSpeed -= TARGET_FRAME_RATE * secondsForBoost;
                     }
                 }
                 //bookkeeping at the start of each frame
@@ -112,9 +114,8 @@ public class CarController : MonoBehaviour {
                 {
                     usePowerup();
                 }
-                if(Input.GetButtonDown("Fire1") && boostGauge.gauge == BoostGaugeController.MAX_GAUGE && gasRemaining >= boostCost)
+                if(Input.GetButtonDown("Fire1") && boostGauge.gauge == BoostGaugeController.MAX_GAUGE)
                 {
-                    gasRemaining -= boostCost;
                     StartCoroutine(boost());
                     boostGauge.clearGauge();
                 }
@@ -167,6 +168,10 @@ public class CarController : MonoBehaviour {
     {
         float moveHorizontal = Input.GetAxis("Horizontal") * 5;
         float moveVertical = Input.GetAxis("Vertical");
+        if(alwaysAccelerate.isOn)
+        {
+            moveVertical = 1.0f;
+        }
 
         //handle vertical (forward) movement
         if(moveVertical < 0.0f)
